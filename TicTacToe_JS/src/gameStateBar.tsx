@@ -12,11 +12,11 @@ export class GameStateBar extends React.Component<{}, GameStateBarState> {
         this.state = {gameState: ""};
     }
     
-    handleGameStateChange(e:CustomEvent) {
+    private handleGameStateChange(e:CustomEvent) {
         this.setState({gameState: e.detail});
     }
   
-    handleRestart(e:Event) {
+    private handleRestart(e:Event) {
         this.setState({gameState: ""});
     }
 
