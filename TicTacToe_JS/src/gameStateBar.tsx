@@ -1,4 +1,9 @@
-import React from "react";
+import * as React from "react";
+import { GameState } from "./constants";
+
+interface GameStateBarState {
+    gameState: GameState
+}
 
 export class GameStateBar extends React.Component {
     
