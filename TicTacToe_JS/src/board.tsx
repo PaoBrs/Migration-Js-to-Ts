@@ -1,19 +1,24 @@
 import * as React from "react";
-import { playerCell, aiCell } from "./constants"; 
+import { playerCell, aiCell, GameState, CellValue } from "./constants";
 
-export class Board extends React.Component {
+interface BoardState {
+    cells: CellValue[],
+    gameState: GameState
+}
 
-    constructor(props) {
+export class Board extends React.Component<{}, BoardState> {
+
+    constructor(props:{}) {
         super(props);        
         this.state = this.getInitState();
     } 
     
-    getInitState() { 
+   private  getInitState():BoardState { 
         let cells = Array.apply(null, Array(9)).map(() => "");
         return {cells: cells, gameState: ""}
     }
 
-    resetState() {
+    private resetState(): void {
         this.setState(this.getInitState());
     }
      
@@ -26,14 +31,14 @@ export class Board extends React.Component {
     }
     
     // Fire a global event notifying GameState changes
-    handleGameStateChange(newState) {
-        var event = new CustomEvent("gameStateChange", { "detail": this.state.gameState });
+    private handleGameStateChange(newState:GameState) {
+        const event = new CustomEvent("gameStateChange", { "detail": this.state.gameState });
         event.initEvent("gameStateChange", false, true); 
         window.dispatchEvent(event);
     }   
     
     // check the game state - use the latest move
-    checkGameState(cells, latestPos, latestVal) {
+    private checkGameState(cells:CellValue[], latestPos:number, latestVal:CellValue):GameState {
         if (this.state.gameState !== "") {
             return this.state.gameState;
         }
@@ -70,7 +75,7 @@ export class Board extends React.Component {
     }
     
     // check if 3 cells have same non-empty val - return the winner state; otherwise undefined 
-    check3Cells(cells, pos0, pos1, pos2) {
+    private check3Cells(cells:CellValue[], pos0:number, pos1:number, pos2:number):GameState | undefined {
         if (cells[pos0] === cells[pos1] &&
             cells[pos1] === cells[pos2] &&
             cells[pos0] !== "") {
@@ -85,7 +90,7 @@ export class Board extends React.Component {
     }
     
     // list all empty cell positions
-    findAllEmptyCells(cells) {
+    private findAllEmptyCells(cells:CellValue[]):number[] {
         return cells.map((v, i) => { 
             if (v === "") {
                 return i;
@@ -97,7 +102,7 @@ export class Board extends React.Component {
     }
     
     // make a move
-    move(pos, val, callback) {
+    private move(pos: number, val:CellValue, callback?:()=>void):void {
         if (this.state.gameState === "" &&
             this.state.cells[pos] === "") {
             let newCells = this.state.cells.slice();
@@ -115,7 +120,7 @@ export class Board extends React.Component {
     }
 
     // handle a new move from player
-    handleNewPlayerMove(pos) {
+    private handleNewPlayerMove(pos: number):void {
         this.move(pos, playerCell, () => {
             // AI make a random move following player's move
             let emptyCells = this.findAllEmptyCells(this.state.cells);
@@ -139,10 +144,15 @@ export class Board extends React.Component {
     }
 }
 
-class Cell extends React.Component {
+interface CellProps extends React.Props<any> {
+    pos: number,
+    val: CellValue,
+    handleMove: ()=> void
+}
+class Cell extends React.Component<CellProps, {}> {
 
     // position of cell to className
-    posToClassName(pos) {
+    private posToClassName(pos:number):string {
         let className = "cell";
         switch (Math.floor(pos / 3)) {
             case 0: 
@@ -166,7 +176,7 @@ class Cell extends React.Component {
         return className;
     }
 
-    handleClick(e) {
+    private handleClick(e:React.MouseEvent<HTMLDivElement>) {
         this.props.handleMove();
     }
 
